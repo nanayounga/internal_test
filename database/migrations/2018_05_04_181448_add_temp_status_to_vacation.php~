@@ -1,0 +1,32 @@
+<?php
+
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Database\Migrations\Migration;
+
+class AddTempStatusToVacation extends Migration {
+
+	/**
+	 * Run the migrations.
+	 *
+	 * @return void
+	 */
+	public function up()
+	{
+		Schema::table('paid_vacations', function (Blueprint $table) {
+			$table->enum('vacation_temp_status', ['waitting', 'temp_approved','approved', 'unapproved','cancel'])->default('waitting')->change() ;
+		});
+	}
+
+	/**
+	 * Reverse the migrations.
+	 *
+	 * @return void
+	 */
+	public function down()
+	{
+		Schema::table('paid_vacations', function (Blueprint $table) {
+			$table->enum('vacation_temp_status', ['waitting', 'approved', 'unapproved','cancel'])->default('waitting');
+		});
+	}
+
+}

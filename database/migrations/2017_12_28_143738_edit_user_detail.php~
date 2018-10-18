@@ -1,0 +1,35 @@
+<?php
+
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Database\Migrations\Migration;
+
+class EditUserDetail extends Migration {
+
+	/**
+	 * Run the migrations.
+	 *
+	 * @return void
+	 */
+	public function up()
+	{
+		//保険者番号 
+		
+
+		Schema::table('user_details', function($table)
+		{
+			DB::statement('ALTER TABLE `user_details` CHANGE `detail_koyohoken_bango` `detail_koyohoken_bango` VARCHAR(20) NOT NULL COMMENT "雇用保険番号"');
+			DB::statement('ALTER TABLE `user_details` CHANGE `detail_hokensha_bango` `detail_hokensha_bango` VARCHAR(20) NOT NULL COMMENT "保険者番号"');
+		});
+	}
+
+	/**
+	 * Reverse the migrations.
+	 *
+	 * @return void
+	 */
+	public function down()
+	{
+			DB::statement('ALTER TABLE user_details CHANGE detail_hokensha_bango detail_hokensha_bango BIGINT(20) NOT NULL COMMENT "保険者番号"');
+	}
+
+}

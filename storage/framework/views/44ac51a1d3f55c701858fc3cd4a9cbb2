@@ -1,0 +1,39 @@
+<?php $__env->startSection('title', '部署一覧'); ?>
+
+<?php $__env->startSection('content'); ?>
+<div class="row">
+	<div class="col-md-12">
+		<h1 class="page-header">部署一覧</h1>
+	<p>全<?php echo e($departments->count()); ?>件</p>
+	</div>
+
+	<div class="col-md-6">
+		<div class="panel panel-default">
+			<div class="panel-heading">第1階層部署</div>
+			<ul class="list-group">
+				<?php foreach($departments as $department): ?>
+					<?php if($department->department_layer == 0): ?>
+						<li class="list-group-item"><a href="<?php echo e(url('department/show/'. $department->department_id)); ?>"><?php echo e($department->department_name); ?></a></li>
+					<?php endif; ?>
+				<?php endforeach; ?>
+			</ul>
+		</div>
+	</div>
+	<!-- /.col-md-12 -->
+
+	<div class="col-md-6">
+		<div class="panel panel-default">
+			<div class="panel-heading">その他の部署</div>
+			<ul class="list-group">
+				<?php foreach($departments as $department): ?>
+					<?php if($department->department_layer != 0): ?>
+						<li class="list-group-item"><a href="<?php echo e(url('department/show/'. $department->department_id)); ?>"><?php echo e($department->department_name); ?></a></li>
+					<?php endif; ?>
+				<?php endforeach; ?>
+			</ul>
+		</div>
+	</div>
+</div>
+
+<?php $__env->stopSection(); ?>
+<?php echo $__env->make('master', array_except(get_defined_vars(), array('__data', '__path')))->render(); ?>

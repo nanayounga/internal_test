@@ -1,0 +1,56 @@
+<?php $__env->startSection('title', 'グループ詳細'); ?>
+
+<?php $__env->startSection('content'); ?>
+<div class="row">
+	<div class="col-md-12">
+		<h1 class="page-header"><?php echo e($minutes_group->minutes_group_name); ?></h1>
+		<?php echo $__env->make('share/minutes_menu_link_blade', array_except(get_defined_vars(), array('__data', '__path')))->render(); ?>
+	</div>
+	<div class="col-md-12">
+		<?php /* フラッシュメッセージの表示 */ ?>
+		<?php if(Session::has('notice')): ?>
+			<div class="alert alert-success"><?php echo e(Session::get('notice')); ?></div>
+		<?php endif; ?>
+	</div>
+	<!-- /.col-md-12 -->
+
+	<div class="col-md-12">
+		<?php if($minutes_details->total() == 0): ?>
+			議事録が登録されていません。
+		<?php else: ?>
+
+		<table class="table table-striped table-bordered table-hover">
+			<thead>
+				<tr>
+					<th>日付</th>
+					<th>議題</th>
+					<th>作成者</th>
+				</tr>
+			</thead>
+			<tbody>
+				<?php foreach($minutes_details as $detail): ?>
+				<tr>
+					<td><a href="<?php echo e(url('minute/detail/show')); ?>/<?php echo e($detail->minutes_detail_id); ?>" data-toggle="tooltip" data-placement="right" title="" data-html="true" data-original-title="<?php echo nl2br($detail->minutes_detail_agenda); ?>"><?php echo date('n月d日', strtotime($detail->minutes_detail_date)); ?></a></td>
+					<td><?php echo nl2br($detail->minutes_detail_agenda); ?></td>
+					<?php if(empty($detail->user_id)): ?>
+					<td><?php echo e($detail->minutes_detail_user_name); ?></td>
+					<?php else: ?>
+					<td><a href="<?php echo e(url('user/show')); ?>/<?php echo e($detail->user_id); ?>"><?php echo e($detail->minutes_detail_user_name); ?></a></td>
+					<?php endif; ?>
+				</tr>
+				<?php endforeach; ?>
+			</tbody>
+		</table>
+
+		<?php endif; ?>
+	<?php echo $minutes_details->render(); ?>
+
+	</div>
+	<!-- /.col-md-4 -->
+</div>
+<!-- /.row -->
+<?php echo $__env->make('share/minute_user_modal', array_except(get_defined_vars(), array('__data', '__path')))->render(); ?>
+
+
+<?php $__env->stopSection(); ?>
+<?php echo $__env->make('master', array_except(get_defined_vars(), array('__data', '__path')))->render(); ?>

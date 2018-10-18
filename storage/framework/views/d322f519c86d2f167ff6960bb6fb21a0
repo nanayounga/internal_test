@@ -1,0 +1,172 @@
+<?php $__env->startSection('title', '社員検索'); ?>
+
+<?php $__env->startSection('content'); ?>
+<div class="row">
+	<div class="col-md-12">
+		<h1 class="page-header">社員検索</h1>
+	</div>
+
+	<div class="col-md-12">
+		<div class="panel panel-default">
+			<div class="panel-heading">検索内容の入力</div>
+			<div class="panel-body">
+				<div class="form-group <?php echo e($errors->has('user_name') ? 'has-error' : ''); ?>">
+					<div class="col-md-4" style="margin-bottom: 10px;">
+						<input class="form-control" name="user_name" text="text" id="search_text" value="<?php echo e(old('user_name')); ?>" maxlength="20" placeholder="ID、名前、Email、部署を入力" required>
+						<?php if($errors->has('user_name')): ?>
+							<p class="help-block"><?php echo e($errors->first('user_name')); ?></p>
+						<?php endif; ?>
+					</div>
+					<div class="col-md-4">
+						<button class="btn btn-primary search_btn">検索</button>
+					</div>
+				</div>
+			</div>
+			<!-- /.panel-body -->
+		</div>
+		<!-- /.panel -->
+
+		<table class="table table-striped table-bordered table-hover" id="result">
+			<thead>
+				<tr>
+					<th>社員名</th>
+					<th>Email</th>
+					<th>所属部署</th>
+				</tr>
+			</thead>
+			<tbody id="user_list">
+			</tbody>
+		</table>
+
+		<div class="loading"><i class="fa fa-spinner fa-spin"></i></div>
+
+		<div class="alert alert-success" id="none">
+			該当社員が見つかりませんでした
+		</div>
+
+		<input type="hidden" name="offset" value="0" id="offset">
+	</div>
+	<!-- /.col-md-12 -->
+</div>
+<!-- /.row -->
+
+</div>
+
+<script type="text/javascript">
+$(function() {
+	// ブザウザバック用の対応
+	// $('#offset')の値が前回開いた時の値になっていると
+	// ブラウザバックで戻った時に途中から取得してしまうので値を0にする
+	if ($('#user_list td a').length == 0) {
+		$('#offset').val(0);
+	}
+
+	// 検索内容の取得
+	get_search();
+
+	// 検索窓でエンター押下時
+	$( '#search_text' ).keypress( function ( e ) {
+		if ( e.which == 13 )
+		{
+			search_controls()
+			// 検索内容の取得
+			var str = $('#search_text').val();
+			get_search(str);
+			return false;
+		}
+	} );
+
+	// 検索ボタン押下
+	$(document).on('click', '.search_btn', function() {
+		search_controls()
+		// 検索内容の取得
+		var str = $('#search_text').val();
+		get_search(str);
+	});
+});
+
+// 検索内容の取得
+function get_search($search_text=null) {
+	var offset = $('#offset').val();
+
+	// 結果出力テーブル
+	var result = $('#result');
+	// 検索結果なし
+	var none = $('#none');
+	// 出力テーブルの内容
+	var list = $("#user_list");
+	// ローディング画像
+	var loding = $('.loading');
+
+	loding.show();
+
+	$.ajax({
+		url: '<?php echo e(url("user/get_search")); ?>',
+		type: 'POST',
+		data: {text: $search_text, offset: offset},
+		// contentType: 'application/text',
+		dataType: 'json',
+	}).done(function(data) {
+		if ( data == 'none')
+		{
+			none.show();
+			loding.hide();
+		}
+		else
+		{
+			none.hide();
+			result.show();
+			loding.hide();
+
+			for (var i = 0; i < data.length; i++)
+			{
+				list.append($('<tr></tr>')
+					.append($('<td></td>')
+						.append($('<a></a>')
+							.attr('href','<?php echo e(url("user/show/")); ?>/'+ data[i]["user_id"])
+							.text(data[i]["user_kanji_last_name"] + ' ' + data[i]["user_kanji_first_name"])
+						)
+					)
+					.append($('<td></td>').text(data[i]["user_email"]))
+					.append($('<td></td>')
+						.append($('<a></a>')
+							.attr('href','<?php echo e(url("department/show/")); ?>/'+ data[i]["department_id"])
+							.text(data[i]["department_name"])
+						)
+					)
+				);
+			};
+			// スクロール時に次に読み込む際のoffsetをカウントアップ
+			$('#offset').val(parseInt(offset) + parseInt(30));
+		}
+
+	}).fail(function(data) {
+		console.log(data.responseText);
+	});
+}
+
+function search_controls() {
+	$('#offset').val(0);
+	$("#user_list").empty();
+	$('#result').hide();
+	$('#none').hide();
+}
+
+// ページ最下部へのスクロールで結果を読み込み
+$(window).on("scroll", function() {
+	var scrollHeight = $(document).height();
+	var scrollPosition = $(window).height() + $(window).scrollTop();
+	// if ((scrollHeight - scrollPosition) / scrollHeight === 0) {
+	if ((scrollHeight - scrollPosition) / scrollHeight < 0.5) {
+		if ($('.loading').css('display') == 'none' && $('#none').css('display') == 'none') {
+			// 検索内容の取得
+			var str = $('#search_text').val();
+			get_search(str);
+		}
+
+	}
+});
+</script>
+
+<?php $__env->stopSection(); ?>
+<?php echo $__env->make('master', array_except(get_defined_vars(), array('__data', '__path')))->render(); ?>
